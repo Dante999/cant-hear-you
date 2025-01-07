@@ -1,85 +1,40 @@
+#include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <dirent.h>
-#include <stdbool.h>
 #include <string.h>
-#include <limits.h>
 #include <unistd.h>
+#include <signal.h>
 
-#define DEFAULT_CARD "card0"
-#define MAX_BUFFER 2096
+#include "sound_card.h"
+#include "util_makros.h"
+#include "arg_parser.h"
 
+static bool running =  true;
 
-typedef struct {
-	char card_path[MAX_BUFFER];
-	DIR *m_dir;
-} Sound_Card;
-
-static bool sound_card_open(Sound_Card *sc, const char *filepath)
+void sighandler(int signum)
 {
-	sprintf(sc->card_path, "/proc/asound/%s", filepath);
+	UNUSED(signum);
 
-	sc->m_dir = opendir(sc->card_path);
-
-	return (sc->m_dir != NULL) ? true : false;
+	printf("Received signal, aborting...\n");
+	running = false;
 }
 
-static void sound_card_close(Sound_Card *sc)
-{
-	if (sc->m_dir != NULL) {
-		closedir(sc->m_dir);
-	}
-}
 
-static bool sound_card_isrunning(const Sound_Card *sc) {
-
-	printf("checking soundcard %s\n", sc->card_path);
-	struct dirent *ent;
-
-	rewinddir(sc->m_dir);
-
-	while ((ent = readdir(sc->m_dir)) != NULL) {
-
-		if (strncmp(ent->d_name, "pcm", strlen("pcm")) != 0 || 
-			ent->d_type != DT_DIR) {
-			continue; 
-		}
-
-		char filepath[MAX_BUFFER];
-		
-		snprintf(filepath, sizeof(filepath), "%s/%s/sub0/status", sc->card_path, ent->d_name);
-		printf("\t%s ...", filepath);
-
-		FILE *fd = fopen(filepath, "r");
-
-		if (fd == NULL) {
-			printf("UNABLE_TO_OPEN\n");
-			continue;
-		}
-
-		char linebuffer[255];
-
-		while (fgets(linebuffer, sizeof(linebuffer), fd)){
-			if (strcmp(linebuffer, "state: RUNNING\n") == 0) {
-				printf("RUNNING\n");
-				fclose(fd);
-				return true;
-			}
-		}
-		
-		printf("CLOSED\n");
-		fclose(fd);
-		
-	}
-
-	return false;
-
-}
 
 int main(int argc, char *argv[])
 {
+	signal(SIGINT, sighandler);
 
-	if (argc < 2) {
+	args_add_key("--soundcard");
+	args_add_key("--serial");
+	args_parse(argc, argv);
+
+	args_print();
+
+	const char *scard_name = args_gets("--soundcard"); 
+
+	if (scard_name == NULL || strlen(scard_name) == 0) {
 		printf(
 			"No sound card given! To receive a list of available cards\n"
 			"exectute `ls -la /proc/asound | grep card`\n");
@@ -91,26 +46,25 @@ int main(int argc, char *argv[])
 	Sound_Card sc;
 
 
-	if (!sound_card_open(&sc, argv[1])) {
+	if (!sound_card_open(&sc, scard_name)) {
 		fprintf(stderr, "Unable to open dir!");
 		return 1;
 	}
 
-	printf("cool! opened folder!\n");
+	while (running) {
 
-	for( size_t i=0; i < 5; ++i) {
-		bool isrunning = sound_card_isrunning(&sc);
+		if (sound_card_isrunning(&sc)) {
+			printf("soundcard %s: RUNNING\n", sc.card_path);
+		}
+		else {
+			printf("soundcard %s: CLOSED\n", sc.card_path);
+		}
 
-	//	printf("Sound Card: %s\n", isrunning ? "STREAM" : "STOPPEND");
 		sleep(1);
 	}
 
 	sound_card_close(&sc);
-
-
-
-
-
+	printf("closing sound card: %s\n", sc.card_path);
 
 	return 0;
 }
