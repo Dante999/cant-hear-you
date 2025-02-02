@@ -7,8 +7,8 @@
 #include <signal.h>
 
 #include "sound_card.h"
-#include "util_makros.h"
-#include "arg_parser.h"
+#include "libcutils/util_makros.h"
+#include "libcutils/arg_parser.h"
 
 static bool running =  true;
 
@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
 {
 	signal(SIGINT, sighandler);
 
-	args_add_key("--soundcard");
-	args_add_key("--serial");
+	args_add_argument("--soundcard");
+	args_add_argument("--serial");
 	args_parse(argc, argv);
 
 	args_print();
@@ -45,9 +45,9 @@ int main(int argc, char *argv[])
 
 	Sound_Card sc;
 
-
-	if (!sound_card_open(&sc, scard_name)) {
-		fprintf(stderr, "Unable to open dir!");
+	Result ret = sound_card_open(&sc, scard_name);
+	if (!ret.success) {
+		fprintf(stderr, "Unable to open sound_card dir: %s\n", ret.msg);
 		return 1;
 	}
 
