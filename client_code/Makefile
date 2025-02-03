@@ -7,8 +7,9 @@ all:
 		-I ${LIBCUTILS_INC_DIR} \
 		main.c \
 		sound_card.c \
+		${LIBCUTILS_SRC_DIR}/arg_parser.c \
 		${LIBCUTILS_SRC_DIR}/result.c \
-		${LIBCUTILS_SRC_DIR}/arg_parser.c
+		${LIBCUTILS_SRC_DIR}/util_strings.c
 
 clean:
-	rm canthearyou
+	rm -rf build

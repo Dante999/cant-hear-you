@@ -26,13 +26,38 @@ int main(int argc, char *argv[])
 {
 	signal(SIGINT, sighandler);
 
+	args_add_flag("--help");
+	args_add_flag("--show_soundcards");
+
 	args_add_argument("--soundcard");
-	args_add_argument("--serial");
+
 	args_parse(argc, argv);
+	Result res = args_parse(argc, argv);
+	if (!res.success) {
+		fprintf(stderr, "ERROR: unable to parse launch arguments: %s\n", res.msg);
+		args_help(argv[0]);
+		return 1;
+	}
+
+	if (args_get_flag("--help")) {
+		args_help(argv[0]);
+		return 0;
+	}
+	if (args_get_flag("--show_soundcards")) {
+		sound_card_show();
+		return 0;
+	}
+
+	res = args_verify();
+	if (!res.success) {
+		fprintf(stderr, "ERROR: verifying args: %s\n", res.msg);
+		args_help(argv[0]);
+		return 1;
+	}
 
 	args_print();
 
-	const char *scard_name = args_gets("--soundcard"); 
+	const char *scard_name = args_gets("--soundcard");
 
 	if (scard_name == NULL || strlen(scard_name) == 0) {
 		printf(
@@ -45,9 +70,9 @@ int main(int argc, char *argv[])
 
 	Sound_Card sc;
 
-	Result ret = sound_card_open(&sc, scard_name);
-	if (!ret.success) {
-		fprintf(stderr, "Unable to open sound_card dir: %s\n", ret.msg);
+	res = sound_card_open(&sc, scard_name);
+	if (!res.success) {
+		fprintf(stderr, "ERROR: failed to open sound_card dir: %s\n", res.msg);
 		return 1;
 	}
 

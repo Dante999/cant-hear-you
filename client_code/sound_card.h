@@ -15,5 +15,6 @@ typedef struct {
 Result sound_card_open(Sound_Card *sc, const char *filepath);
 bool sound_card_isrunning(const Sound_Card *sc);
 void sound_card_close(Sound_Card *sc);
+void sound_card_show();
 
 #endif // SOUND_CARD_H
