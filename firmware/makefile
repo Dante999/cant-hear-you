@@ -3,7 +3,7 @@
 ################################################################################
 
 # Name of the target (files will be named like that)
-TARGET =  canthearyou
+TARGET = canthearyou
 
 # Path where objects files and binaries will be located after creation
 BUILDPATH = ./build
@@ -13,6 +13,7 @@ MCU=attiny85
 
 # Clock of the Microcontroller (Hz)
 F_CPU=16000000
+
 
 # Fuses
 # http://www.engbedded.com/fusecalc
@@ -33,25 +34,9 @@ EXTRA_FLAGS += -DLOG_LEVEL=LEVEL_INFO
 ################################################################################
 # Project files
 ################################################################################
-AVR_MATE_CORE_ROOT = ../core
-
-VPATH += src
-VPATH += $(AVR_MATE_CORE_ROOT)/src
-
-
-EXTRA_FLAGS += -I$(AVR_MATE_CORE_ROOT)/include
-
 
 # List of all sources (only source-files)
 SOURCES  = main.c
-#SOURCES += protocol.c
-#SOURCES += handheld.c
-#SOURCES += graphx.c
-#
-#SOURCES += spi_slave.c
-#SOURCES += logger.c
-#SOURCES += i2cmaster.c
-#SOURCES += ssd1306.c
 
 ################################################################################
 # Building Object files 
@@ -76,7 +61,6 @@ OBJECTS = $(TMP2)
 CC = avr-gcc
 
 CFLAGS += -c                       # Compile and assemble, but do not link
-#CFLAGS += -g                       # Generate debug information in default format
 CFLAGS += -Os                      # Optimize for space rather than speed
 CFLAGS += -std=c99                 # Use this C standard
 
@@ -145,8 +129,8 @@ size:
 	avr-size --mcu=$(MCU) -C $(BUILDPATH)/$(TARGET).elf
 
 flash_hex:
-	avrdude -p $(MCU) $(PORT) $(BAUD) -c $(PROGRAMMER) -U flash:w:$(BUILDPATH)/$(TARGET).hex:a
-	#	micronucleus --run $(BUILDPATH)/$(TARGET).hex
+	#avrdude -p $(MCU) $(PORT) $(BAUD) -c $(PROGRAMMER) -U flash:w:$(BUILDPATH)/$(TARGET).hex:a
+	micronucleus --run $(BUILDPATH)/$(TARGET).hex
 
 read_fuses:
 	avrdude -p $(MCU) $(PORT) $(BAUD) -c $(PROGRAMMER) -U lfuse:r:-:i
