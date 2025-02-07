@@ -1,3 +1,6 @@
 [submodule "thirdparty/libcutils"]
 	path = thirdparty/libcutils
 	url = https://github.com/Dante999/libcutils.git
+[submodule "thirdparty/v-usb"]
+	path = thirdparty/v-usb
+	url = https://github.com/obdev/v-usb.git

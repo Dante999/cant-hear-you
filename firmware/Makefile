@@ -12,7 +12,7 @@ BUILDPATH = ./build
 MCU=attiny85
 
 # Clock of the Microcontroller (Hz)
-F_CPU=16000000
+F_CPU=16500000
 
 
 # Fuses
@@ -23,26 +23,27 @@ E_FUSE=0xFF
 
 # Progammer
 # [usbasp|arduino]
-PROGRAMMER=arduino
+PROGRAMMER=usbasp
 PORT:=-P/dev/ttyUSB1
 #BAUD=-B9600
 
 EXTRA_FLAGS  = -DF_CPU=$(F_CPU)UL
-EXTRA_FLAGS += -DLOG_LEVEL=LEVEL_INFO
+EXTRA_FLAGS += -I.
 
 
 ################################################################################
 # Project files
 ################################################################################
-
+VPATH = ./usbdrv
 # List of all sources (only source-files)
 SOURCES  = main.c
-
+SOURCES += usbdrv.c
+SOURCES += usbdrvasm.S
 ################################################################################
-# Building Object files 
+# Building Object files
 ################################################################################
 
-# Pattern of the objects files 
+# Pattern of the objects files
 OBJ_PATTERN = $(BUILDPATH)/%.o
 
 # Change file extension from .c to .o
@@ -51,8 +52,11 @@ TMP1 =  $(SOURCES:%.c=$(OBJ_PATTERN))
 # Change file extension from .cpp to .o
 TMP2 = $(TMP1:%.cpp=$(OBJ_PATTERN))
 
+# Change file extension from .cpp to .o
+TMP3 = $(TMP2:%.S=$(OBJ_PATTERN))
+
 # Final list ob object files to generate
-OBJECTS = $(TMP2)
+OBJECTS = $(TMP3)
 
 
 ################################################################################
@@ -125,12 +129,16 @@ $(OBJ_PATTERN): %.cpp
 	@echo "\n\n-----\n compiling c++ file '$<' -> '$@'\n-----"
 	$(CC) $(CFLAGS) -mmcu=$(MCU) $< -o $@
 
+$(OBJ_PATTERN): %.S
+	@echo "\n\n-----\n compiling Assembler file '$<' -> '$@'\n-----"
+	$(CC) $(CFLAGS) -x assembler-with-cpp -mmcu=$(MCU) $< -o $@
+
 size:
 	avr-size --mcu=$(MCU) -C $(BUILDPATH)/$(TARGET).elf
 
 flash_hex:
 	#avrdude -p $(MCU) $(PORT) $(BAUD) -c $(PROGRAMMER) -U flash:w:$(BUILDPATH)/$(TARGET).hex:a
-	micronucleus --run $(BUILDPATH)/$(TARGET).hex
+	micronucleus flash $(BUILDPATH)/$(TARGET).hex
 
 read_fuses:
 	avrdude -p $(MCU) $(PORT) $(BAUD) -c $(PROGRAMMER) -U lfuse:r:-:i
