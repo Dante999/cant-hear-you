@@ -7,6 +7,7 @@
 #include <signal.h>
 
 #include "sound_card.h"
+#include "usb_led.h"
 #include "libcutils/util_makros.h"
 #include "libcutils/arg_parser.h"
 
@@ -80,9 +81,19 @@ int main(int argc, char *argv[])
 
 		if (sound_card_isrunning(&sc)) {
 			printf("soundcard %s: RUNNING\n", sc.card_path);
+
+			res = usb_led_set(true);
+			if (!res.success) {
+				fprintf(stderr, "ERROR: failed to set led: %s\n", res.msg);
+			}
+
 		}
 		else {
 			printf("soundcard %s: CLOSED\n", sc.card_path);
+			res = usb_led_set(false);
+			if (!res.success) {
+				fprintf(stderr, "ERROR: failed to set led: %s\n", res.msg);
+			}
 		}
 
 		sleep(1);
