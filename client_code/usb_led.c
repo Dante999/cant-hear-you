@@ -16,6 +16,7 @@
    See http://libusb.sourceforge.net/ or http://libusb-win32.sourceforge.net/
    respectively.
    */
+#include "usb_led.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +27,6 @@
 #include "../firmware/requests.h"   /* custom request numbers */
 #include "../firmware/usbconfig.h"  /* device's VID/PID and names */
 
-#include "usb_led.h"
 
 static Result usb_led_open(libusb_device_handle **handle)
 {
@@ -34,7 +34,7 @@ static Result usb_led_open(libusb_device_handle **handle)
 	const unsigned char rawPid[2] = {USB_CFG_DEVICE_ID};
 	char vendor[]  = {USB_CFG_VENDOR_NAME, 0};
 	char product[] = {USB_CFG_DEVICE_NAME, 0};
-	
+
 	/* compute VID/PID from usbconfig.h so that there is a central source of information */
 	const int vid = rawVid[1] * 256 + rawVid[0];
 	const int pid = rawPid[1] * 256 + rawPid[0];
@@ -79,7 +79,7 @@ static Result usb_led_open(libusb_device_handle **handle)
 Result usb_led_set(bool on)
 {
 	libusb_device_handle *handle = NULL;
-	
+
 	Result result = usb_led_open(&handle);
 	if (!result.success) {
 		return result;
@@ -107,65 +107,3 @@ Result usb_led_set(bool on)
 	return make_result_success();
 }
 
-
-
-
-
-
-#if 0
-
-
-
-
-
-int no_main(int argc, char **argv)
-{
-	char                buffer[4];
-	int                 cnt, isOn;
-
-
-	if (argc < 2) {   /* we need at least one argument */
-		usage(argv[0]);
-		exit(1);
-	}
-
-
-
-
-
-
-
-
-
-
-
-	if (strcasecmp(argv[1], "status") == 0) {
-		cnt = libusb_control_transfer(handle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_IN, CUSTOM_RQ_GET_STATUS, 0, 0, (unsigned char *)buffer, sizeof(buffer), 5000);
-		if (cnt < 1) {
-			if (cnt < 0) {
-				fprintf(stderr, "USB error: %s\n", libusb_strerror(cnt));
-			}
-			else {
-				fprintf(stderr, "only %d bytes received.\n", cnt);
-			}
-		}
-		else {
-			printf("LED is %s\n", buffer[0] ? "on" : "off");
-		}
-	}
-	else if ((isOn = (strcasecmp(argv[1], "on") == 0)) || strcasecmp(argv[1], "off") == 0) {
-		cnt = libusb_control_transfer(handle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE | LIBUSB_ENDPOINT_OUT, CUSTOM_RQ_SET_STATUS, isOn, 0, (unsigned char *)buffer, 0, 5000);
-		if (cnt < 0) {
-			fprintf(stderr, "USB error: %s\n", libusb_strerror(cnt));
-		}
-
-	}
-	else {
-		usage(argv[0]);
-		exit(1);
-	}
-	libusb_close(handle);
-	return 0;
-}
-
-#endif
