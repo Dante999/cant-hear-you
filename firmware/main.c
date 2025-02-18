@@ -62,7 +62,6 @@ void hadUsbReset() {
 	}
 
 	OSCCAL = bestCal;
-	LED_ON();
 }
 
 
@@ -103,6 +102,7 @@ usbMsgLen_t usbFunctionSetup(uchar data[8])
 int main(void)
 {
 	LED_INIT();
+	LED_ON();
 	wdt_enable(WDTO_1S);
 	usbInit();
 
@@ -117,6 +117,7 @@ int main(void)
 
 	sei();
 
+	LED_OFF();
 	while(1) {
 		wdt_reset();
 		usbPoll();

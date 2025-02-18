@@ -77,18 +77,25 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	bool old_state = false;
+
+	bool old_state        = false;
+	bool devicestatus_set = false;
 
 	while (running) {
 
 		bool new_state = sound_card_isrunning(&sc);
 
-		if (old_state != new_state) {
+		if (old_state != new_state || !devicestatus_set) {
 			printf("soundcard %s: %s\n", sc.card_path, (new_state ? "RUNNING" : "CLOSED"));
-			res = usb_led_set(new_state);
-			if (!res.success) {
-				fprintf(stderr, "ERROR: failed to set led: %s\n", res.msg);
-			}
+		}
+
+		res = usb_led_set(new_state);
+		if (res.success) {
+			devicestatus_set = true;
+		}
+		else {
+			fprintf(stderr, "ERROR: failed to set led: %s\n", res.msg);
+			devicestatus_set = false;
 		}
 
 		old_state = new_state;
