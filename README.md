@@ -16,10 +16,22 @@ This visual sign will be a digispark attiny85 with V-USB lib for direct USB
 communication and a LED which is showing in some way that I'm listening to some
 music.
 
-# How it works
+## How it works
 On linux it is pretty much straight-forward to check if there is any sound
 running on a specific device because... on linux everything is a file... right?
-So yeah, under `/proc/asound` are the configured cards of the ALSA Driver 
+So yeah, under `/proc/asound` are the configured cards of the ALSA Driver
 stored which also contains a `status` file which shows if there is any sound
 being played or not (for details see https://docs.kernel.org/sound/designs/procfile.html).
 
+
+## How to build
+
+	sudo apt update && sudo apt install -y \
+		build-essential \
+		gcc-avr \
+		avr-libc \
+		libusb-1.0-0-dev \
+
+Additionally you also have to install on your host *micronucleus* to be able to
+upload the firmware to your attiny85. For installation instructions take a look
+at their github repo: https://github.com/micronucleus/micronucleus
