@@ -53,6 +53,7 @@ comments:
 
 
 ## Resources
+- https://github.com/yasir-shahzad/Digispark-ATTINY85/blob/master/documents/ATtiny85-schematic.pdf
 - https://www.obdev.at/products/vusb/easylogger.html
 - https://www.az-delivery.de/products/digispark-board
 - https://www.microchip.com/en-us/product/ATtiny85#Documentation

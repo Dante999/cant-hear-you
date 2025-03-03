@@ -17,10 +17,10 @@
  */
 
 
-#define LED_INIT()   (DDRB  |= _BV(PB1))
-#define LED_STATUS() (PORTB & _BV(PB1))
-#define LED_ON()     (PORTB |= _BV(PB1))
-#define LED_OFF()    (PORTB &= ~_BV(PB1))
+#define LED_INIT()   (DDRB  |= _BV(PB0))
+#define LED_STATUS() (PORTB & _BV(PB0))
+#define LED_ON()     (PORTB &= ~_BV(PB0))
+#define LED_OFF()    (PORTB |= _BV(PB0))
 
 #include <avr/io.h>
 #include <avr/wdt.h>
